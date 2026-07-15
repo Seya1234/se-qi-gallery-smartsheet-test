@@ -1,12 +1,17 @@
+import { readdirSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const SMARTSHEET_API_BASE = "https://api.smartsheet.com/2.0";
 const PREVIEW_OUTPUT_PATH = "data/projects.preview.json";
+const DEFAULT_IMAGES_DIRECTORY = "images";
 const READY_TO_PUBLISH_STATUS = "Ready to publish";
 const PROJECT_TOOLKIT_USE = "For a specific project";
 const INITIATIVE_TOOLKIT_USE = "As a training or capacity building tool";
+const WEBSITE_LABEL_OVERRIDES = new Map([
+  ["Stewardship / Appropriateness", "Stewardship/ Appropriateness"]
+]);
 
 const EXPECTED_COLUMN_TITLES = [
   "Respondent name",
@@ -24,7 +29,7 @@ const EXPECTED_COLUMN_TITLES = [
   "Sustainability principles aligned",
   "Prevention",
   "Prevention - Comments",
-  "Stewardship/ Appropriateness",
+  "Stewardship / Appropriateness",
   "Stewardship Comments",
   "Care coordination",
   "Care coordination - Comments",
@@ -265,6 +270,15 @@ function uniqueTrimmed(values) {
   return result;
 }
 
+function toWebsiteLabel(value) {
+  const trimmed = trimText(value);
+  return WEBSITE_LABEL_OVERRIDES.get(trimmed) || trimmed;
+}
+
+function uniqueWebsiteLabels(values) {
+  return uniqueTrimmed(values.map(toWebsiteLabel));
+}
+
 function parseDelimitedValues(value) {
   const text = trimText(value);
   if (!text) return [];
@@ -277,18 +291,20 @@ function getMultiSelectValues(row, column) {
   if (!cell) return [];
 
   if (Array.isArray(cell.objectValue?.values)) {
-    return uniqueTrimmed(cell.objectValue.values);
+    return uniqueWebsiteLabels(cell.objectValue.values);
   }
 
   if (Array.isArray(cell.value)) {
-    return uniqueTrimmed(cell.value);
+    return uniqueWebsiteLabels(cell.value);
   }
 
   if (Array.isArray(cell.displayValue)) {
-    return uniqueTrimmed(cell.displayValue);
+    return uniqueWebsiteLabels(cell.displayValue);
   }
 
-  return parseDelimitedValues(cell.displayValue ?? cell.value ?? cell.objectValue?.value);
+  return uniqueWebsiteLabels(
+    parseDelimitedValues(cell.displayValue ?? cell.value ?? cell.objectValue?.value)
+  );
 }
 
 function stripBulletPrefix(value) {
@@ -311,7 +327,8 @@ function splitListField(value) {
 
 function formatDateForWebsite(value, fallbackDate = new Date()) {
   const text = trimText(value);
-  const source = text || fallbackDate;
+  const hasPublicationDate = text !== "";
+  const source = hasPublicationDate ? text : fallbackDate;
   let date;
 
   if (source instanceof Date) {
@@ -330,7 +347,7 @@ function formatDateForWebsite(value, fallbackDate = new Date()) {
     day: "numeric",
     month: "long",
     year: "numeric",
-    timeZone: "UTC"
+    timeZone: hasPublicationDate ? "UTC" : "America/Vancouver"
   }).format(date);
 }
 
@@ -354,7 +371,7 @@ function buildDetailPairs(row, columnLookup, pairs) {
   return pairs
     .filter(([checkboxTitle]) => isClearlyAffirmative(row, columnLookup.get(checkboxTitle)))
     .map(([checkboxTitle, commentsTitle]) => ({
-      name: checkboxTitle,
+      name: toWebsiteLabel(checkboxTitle),
       explanation: getCellText(row, columnLookup.get(commentsTitle))
     }));
 }
@@ -482,6 +499,26 @@ function validateTypeRequiredFields(row, columnLookup, recordType, errors) {
   }
 }
 
+function buildCaseSensitiveImageFilenameSet(imagesDirectory = DEFAULT_IMAGES_DIRECTORY) {
+  return new Set(readdirSync(imagesDirectory, { withFileTypes: true })
+    .filter(entry => entry.isFile())
+    .map(entry => entry.name));
+}
+
+function validateImageFile(row, columnLookup, availableImageFilenames, errors) {
+  const recordId = rowIdentifier(row, columnLookup);
+  const filename = getCellText(row, columnLookup.get(COMMON_COLUMN_TITLES.photoFilename));
+  if (!filename) return;
+
+  const imagePath = `${DEFAULT_IMAGES_DIRECTORY}/${filename}`;
+  if (filename.includes("/") || filename.includes("\\") || !availableImageFilenames.has(filename)) {
+    errors.push({
+      recordId,
+      issue: `Missing image file: ${imagePath}`
+    });
+  }
+}
+
 function findDuplicateRecordIds(rows, columnLookup) {
   const seen = new Set();
   const duplicates = new Set();
@@ -500,6 +537,8 @@ export function generatePreviewRecords(sheet, options = {}) {
   const rows = Array.isArray(sheet.rows) ? sheet.rows : [];
   const columnLookup = buildColumnLookup(sheet.columns || []);
   const fallbackDate = options.fallbackDate || new Date();
+  const availableImageFilenames =
+    options.availableImageFilenames || buildCaseSensitiveImageFilenameSet(options.imagesDirectory);
   const errors = [];
 
   const readyRows = rows.filter(
@@ -525,6 +564,7 @@ export function generatePreviewRecords(sheet, options = {}) {
     const recordType = getRecordType(toolkitUse);
 
     validateCommonRequiredFields(row, columnLookup, errors);
+    validateImageFile(row, columnLookup, availableImageFilenames, errors);
 
     if (!recordType) {
       errors.push({
