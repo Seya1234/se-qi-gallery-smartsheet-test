@@ -22,7 +22,7 @@
   Pick ONE OR MORE names from this exact list:
   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     "Prevention"
-    "Stewardship / Appropriateness"
+    "Stewardship/ Appropriateness"
     "Care coordination"
     "Consumables"
     "Waste management"
@@ -73,7 +73,7 @@ const FILTER_GROUPS = [
         field: "sustainabilityPrinciples",
         values: [
             "Prevention",
-            "Stewardship / Appropriateness",
+            "Stewardship/ Appropriateness",
             "Decarbonization / Depollution"
         ]
     },
@@ -82,7 +82,7 @@ const FILTER_GROUPS = [
         field: "sustainabilityOpportunities",
         values: [
             "Prevention",
-            "Stewardship / Appropriateness",
+            "Stewardship/ Appropriateness",
             "Care coordination",
             "Consumables",
             "Waste management",
@@ -296,10 +296,6 @@ function getStageClass(stage) {
     return "stage-unknown";
 }
 
-function getStageLabel(project) {
-    return project.type === "initiative" ? "Initiative Stage" : "Project Stage";
-}
-
 function buildStageBadge(stage) {
     if (!stage) return "";
 
@@ -317,6 +313,194 @@ function buildMailLink(project) {
       <a href="mailto:${project.email}" class="contact-button">
         Email ${project.contactName}
       </a>
+    `;
+}
+
+const RESOURCE_SECTION_LABEL_RE =
+    /(Valuable Resources:|Resources identified as particularly valuable:)/i;
+const URL_RE = /https?:\/\/[^\s<>"']+/gi;
+const HAS_URL_RE = /https?:\/\/[^\s<>"']+/i;
+
+function escapeHTML(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function decodeHTMLEntities(value) {
+    const textarea = document.createElement("textarea");
+    textarea.innerHTML = value;
+    return textarea.value;
+}
+
+function stripHTMLTags(value) {
+    return value.replace(/<[^>]*>/g, "");
+}
+
+function normalizeToolkitText(value) {
+    return decodeHTMLEntities(
+        String(value ?? "")
+            .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
+            .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "")
+            .replace(
+                /<a\b[^>]*\bhref\s*=\s*(["'])(.*?)\1[^>]*>([\s\S]*?)<\/a>/gi,
+                (_match, _quote, href, label) => `${stripHTMLTags(label)} ${href}`
+            )
+            .replace(/<br\s*\/?>/gi, "\n")
+            .replace(/<\/(p|div|li|ul|ol|strong|b)>/gi, "\n")
+            .replace(/<(p|div|li|ul|ol|strong|b)\b[^>]*>/gi, "\n")
+            .replace(/<[^>]*>/g, "")
+            .replace(/\r\n?/g, "\n")
+            .replace(/\n{3,}/g, "\n\n")
+            .trim()
+    );
+}
+
+function cleanResourceTitle(value) {
+    return String(value ?? "")
+        .replace(/^[\s;:,\-–—•*]+/, "")
+        .replace(/^\d+[\).]\s*/, "")
+        .replace(/[\s:：\-–—]+$/, "")
+        .trim();
+}
+
+function normalizeURL(value) {
+    let url = String(value ?? "").trim();
+    while (/[.,;:!?]$/.test(url)) {
+        url = url.slice(0, -1);
+    }
+
+    try {
+        const parsed = new URL(url);
+        return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.href : "";
+    } catch (_error) {
+        return "";
+    }
+}
+
+function buildResourceLink(url, title) {
+    const safeURL = normalizeURL(url);
+    if (!safeURL) {
+        return escapeHTML(`${title ? `${title} ` : ""}${url}`.trim());
+    }
+
+    const linkText = cleanResourceTitle(title) || safeURL;
+    return `<a class="toolkit-resource-link" href="${escapeHTML(safeURL)}" target="_blank" rel="noopener noreferrer">${escapeHTML(linkText)}</a>`;
+}
+
+function splitPlainResourceItems(value) {
+    return String(value ?? "")
+        .split(/\s*;\s*|\n+/)
+        .map(item => cleanResourceTitle(item))
+        .filter(Boolean);
+}
+
+function parseLinkedResources(value) {
+    const text = String(value ?? "");
+    const matches = [...text.matchAll(URL_RE)];
+
+    if (matches.length === 0) {
+        return splitPlainResourceItems(text).map(item => ({
+            title: item,
+            url: ""
+        }));
+    }
+
+    const resources = [];
+    let previousEnd = 0;
+
+    for (const match of matches) {
+        const rawURL = match[0];
+        const title = cleanResourceTitle(text.slice(previousEnd, match.index));
+        resources.push({
+            title: title || normalizeURL(rawURL) || rawURL,
+            url: rawURL
+        });
+        previousEnd = match.index + rawURL.length;
+    }
+
+    const trailingText = cleanResourceTitle(text.slice(previousEnd));
+    if (trailingText) {
+        resources.push({
+            title: trailingText,
+            url: ""
+        });
+    }
+
+    return resources;
+}
+
+function formatPlainParagraphs(value) {
+    const text = String(value ?? "").trim();
+    if (!text) return "";
+
+    return text
+        .split(/\n{2,}/)
+        .map(paragraph => paragraph.trim())
+        .filter(Boolean)
+        .map(paragraph => `<p>${paragraph.split(/\n/).map(escapeHTML).join("<br>")}</p>`)
+        .join("");
+}
+
+function autoLinkText(value) {
+    const text = String(value ?? "").trim();
+    if (!text) return "";
+
+    return text
+        .split(/\n{2,}/)
+        .map(paragraph => {
+            let html = "";
+            let previousEnd = 0;
+
+            for (const match of paragraph.matchAll(URL_RE)) {
+                html += escapeHTML(paragraph.slice(previousEnd, match.index));
+                html += buildResourceLink(match[0], "");
+                previousEnd = match.index + match[0].length;
+            }
+
+            html += escapeHTML(paragraph.slice(previousEnd));
+            return `<p>${html.replace(/\n/g, "<br>")}</p>`;
+        })
+        .join("");
+}
+
+function formatToolkitResources(value) {
+    const normalizedText = normalizeToolkitText(value);
+    if (!normalizedText) return "";
+
+    const labelMatch = normalizedText.match(RESOURCE_SECTION_LABEL_RE);
+    if (!labelMatch) {
+        return HAS_URL_RE.test(normalizedText) ? autoLinkText(normalizedText) : formatPlainParagraphs(normalizedText);
+    }
+
+    URL_RE.lastIndex = 0;
+    const labelStart = labelMatch.index;
+    const labelEnd = labelStart + labelMatch[0].length;
+    const introText = normalizedText.slice(0, labelStart).trim();
+    const resourceText = normalizedText.slice(labelEnd).trim();
+    const resources = parseLinkedResources(resourceText);
+
+    if (resources.length === 0) {
+        return autoLinkText(normalizedText);
+    }
+
+    const introHTML = formatPlainParagraphs(introText);
+    const resourceItemsHTML = resources
+        .map(resource => {
+            const content = resource.url
+                ? buildResourceLink(resource.url, resource.title)
+                : escapeHTML(resource.title);
+            return `<li>${content}</li>`;
+        })
+        .join("");
+
+    return `
+        ${introHTML}
+        <p class="toolkit-resource-heading"><strong>Resources identified as particularly valuable:</strong></p>
+        <ul class="toolkit-resource-list">${resourceItemsHTML}</ul>
     `;
 }
 
@@ -543,7 +727,7 @@ function buildModalHTML(p) {
 
         <section class="modal-section">
           <h3 class="modal-section-heading">Most Valuable Toolkit Elements</h3>
-          <p>${p.mostValuableElements}</p>
+          <div class="cobenefit-text">${formatToolkitResources(p.mostValuableElements)}</div>
         </section>
 
         <section class="modal-section learn-more-section">
@@ -626,7 +810,7 @@ function buildModalHTML(p) {
 
       <section class="modal-section">
         <h3 class="modal-section-heading">Most Valuable SE-QI Toolkit Resources</h3>
-        <div class="cobenefit-text">${p.cobenefit}</div>
+        <div class="cobenefit-text">${formatToolkitResources(p.cobenefit)}</div>
       </section>
 
       <section class="modal-section learn-more-section">
@@ -689,45 +873,6 @@ function toggleSidebar() {
     }
 }
 
-async function initPDFViewer() {
-    const container = document.getElementById("pdfContainer");
-    const loading = document.getElementById("pdfLoading");
-    if (!container || !window.pdfjsLib) return;
-
-    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
-    try {
-        const pdf = await window.pdfjsLib.getDocument("dashboard.pdf").promise;
-        if (loading) loading.remove();
-
-        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-            const page = await pdf.getPage(pageNum);
-            const containerWidth = container.clientWidth || 900;
-            const baseViewport = page.getViewport({ scale: 1 });
-            const scale = (containerWidth / baseViewport.width) * 2;
-            const viewport = page.getViewport({ scale });
-
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            canvas.style.width = "100%";
-            canvas.style.display = "block";
-            if (pageNum > 1) canvas.style.borderTop = "1px solid #e5e7eb";
-
-            container.appendChild(canvas);
-            await page.render({ canvasContext: ctx, viewport }).promise;
-        }
-    } catch (err) {
-        if (loading) {
-            loading.innerHTML =
-                '<p style="color:#6b7280;padding:32px">Could not load PDF. ' +
-                '<a href="dashboard.pdf" download style="color:#182F51;font-weight:600">Download instead</a></p>';
-        }
-    }
-}
-
 function bindGalleryEvents() {
     document.getElementById("modalClose")?.addEventListener("click", closeModal);
     document.getElementById("modalOverlay")?.addEventListener("click", e => {
@@ -754,7 +899,6 @@ async function initializeGallery() {
         renderProjects();
         renderInitiatives();
         updateActiveCount();
-        initPDFViewer();
         bindGalleryEvents();
     } catch (error) {
         showProjectLoadError(error);
