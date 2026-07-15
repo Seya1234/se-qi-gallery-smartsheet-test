@@ -916,18 +916,30 @@ function clearAllFilters() {
     updateActiveCount();
 }
 
-function toggleSidebar() {
+function setSidebarOpen(isOpen) {
     const sidebar = document.getElementById("sidebar");
     const overlay = document.getElementById("sidebarOverlay");
     const toggle = document.getElementById("sidebarToggle");
+    const closeBtn = document.getElementById("sidebarClose");
 
-    sidebar && sidebar.classList.toggle("sidebar--open");
-    overlay && overlay.classList.toggle("sidebar-overlay--open");
-    document.body.classList.toggle("sidebar-active");
+    sidebar && sidebar.classList.toggle("sidebar--open", isOpen);
+    overlay && overlay.classList.toggle("sidebar-overlay--open", isOpen);
+    overlay && overlay.setAttribute("aria-hidden", isOpen ? "false" : "true");
+    document.body.classList.toggle("sidebar-active", isOpen);
 
     if (toggle) {
-        toggle.setAttribute("aria-expanded", document.body.classList.contains("sidebar-active") ? "true" : "false");
+        toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        if (!isOpen) toggle.focus();
     }
+    if (isOpen && closeBtn) closeBtn.focus();
+}
+
+function toggleSidebar() {
+    setSidebarOpen(!document.body.classList.contains("sidebar-active"));
+}
+
+function closeSidebar() {
+    setSidebarOpen(false);
 }
 
 function bindGalleryEvents() {
@@ -940,9 +952,14 @@ function bindGalleryEvents() {
     document.getElementById("clearFiltersEmpty")?.addEventListener("click", clearAllFilters);
 
     document.getElementById("sidebarToggle")?.addEventListener("click", toggleSidebar);
-    document.getElementById("sidebarOverlay")?.addEventListener("click", toggleSidebar);
+    document.getElementById("sidebarClose")?.addEventListener("click", closeSidebar);
+    document.getElementById("sidebarOverlay")?.addEventListener("click", closeSidebar);
 
     document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && document.body.classList.contains("sidebar-active")) {
+            closeSidebar();
+            return;
+        }
         if (e.key === "Escape") closeModal();
     });
 }
