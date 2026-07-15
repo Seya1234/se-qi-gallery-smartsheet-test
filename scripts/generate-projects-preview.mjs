@@ -24,7 +24,7 @@ const EXPECTED_COLUMN_TITLES = [
   "Sustainability principles aligned",
   "Prevention",
   "Prevention - Comments",
-  "Stewardship / Appropriateness",
+  "Stewardship/ Appropriateness",
   "Stewardship Comments",
   "Care coordination",
   "Care coordination - Comments",
