@@ -1,1 +1,129 @@
-[]
+[
+  {
+    "id": "SEQI-0001",
+    "type": "project",
+    "title": "C.A.R.E Collaborative",
+    "photo": "images/project01.jpg",
+    "photoAlt": "C.A.R.E Collaborative",
+    "province": "British Columbia",
+    "publishedOn": "14 July 2026",
+    "contactName": "Bianca Grosu",
+    "email": "bianca.grosu@vch.ca",
+    "organization": "Vancouver Coastal Health",
+    "department": "Spread Quality Improvement",
+    "stage": "Work in progress",
+    "healthcareSetting": "Long-term care, acute care",
+    "description": "The C.A.R.E. Collaborative is a multi-site QI project implemented across seven long-term care homes in British Columbia and focused on reducing unnecessary and avoidable emergency department transfers from long-term care facilities.",
+    "cobenefit": "Strong starting point for teams new to planetary health. Supports early-stage project development. Valuable Resources: Care Pathways: Guidance on Appraising Sustainability Emergency Department Visit Module (2015) https://networks.sustainablehealthcare.org.uk/sites/default/files/resources/3._Sustainable_Care_Pathways_Guidance_-_Emergency_Department_Visit_Module_-_Oct_2015%283%29.pdf ; British Columbia Emergency Health Services  2023 Climate Change Accountability Report https://www.bcehs.ca/our-services-site/Documents/2023%20BCEHS%20CCAR%20-%20FINAL%20PDF_MC.pdf",
+    "sustainabilityPrinciples": [
+      "Stewardship/ Appropriateness"
+    ],
+    "sustainabilityOpportunities": [
+      {
+        "name": "Prevention",
+        "explanation": "Avoiding complications and patient deterioration through improved continuity of care."
+      },
+      {
+        "name": "Stewardship/ Appropriateness",
+        "explanation": "Avoiding unnecessary hospital-based care and minimizing delays in care delivery."
+      },
+      {
+        "name": "Consumables",
+        "explanation": "Reducing unnecessary resource consumption associated with avoidable acute care utilization."
+      },
+      {
+        "name": "Waste management",
+        "explanation": "Reducing unnecessary medical waste generation associated with avoidable acute care utilization."
+      },
+      {
+        "name": "Travel and transportation",
+        "explanation": "Reducing patient transfers and associated transportation-related emissions."
+      },
+      {
+        "name": "Climate resilience and adaptation",
+        "explanation": "Supporting patient resilience by enabling care within familiar environments and reducing exposure to system-related stressors."
+      }
+    ],
+    "metrics": {
+      "environmental": [
+        "Avoided carbon emissions per emergency department admission (based on the NHS ER visit model).",
+        "Avoided carbon emissions per trip from long-term care sites to emergency departments (calculated using BC ambulatory emissions and the most common route for each care home).",
+        "Carbon emissions per acute care bed day."
+      ],
+      "activity": [
+        "Number of avoided emergency department admissions.",
+        "Number of avoided trips from long-term care sites to emergency departments."
+      ]
+    },
+    "domainsOfQuality": [
+      {
+        "name": "Efficiency",
+        "explanation": "The reduction in unnecessary emergency department transfers decreases avoidable administrative burden, resource use, and pressure on acute care services."
+      },
+      {
+        "name": "Timeliness",
+        "explanation": "Residents receive more timely care within long-term care settings while reducing pressure and delays within emergency departments."
+      },
+      {
+        "name": "Patient-Centredness / Respect",
+        "explanation": "Supports improved dignity, comfort, and continuity of care by enabling residents to remain within familiar long-term care environments and reducing stressful care transitions."
+      }
+    ]
+  },
+  {
+    "id": "SEQI-0002",
+    "type": "project",
+    "title": "Waste Segregation in the Operating Room",
+    "photo": "images/project02.jpg",
+    "photoAlt": "Waste Segregation in the Operating Room",
+    "province": "Manitoba",
+    "publishedOn": "14 July 2026",
+    "contactName": "Tamara Miller",
+    "email": "tmiller1@sbgh.mb.ca",
+    "organization": "St. Boniface Hospital",
+    "department": "Anesthesiology",
+    "stage": "Work in progress",
+    "healthcareSetting": "Anesthesiology Operating Room, Tertiary Care",
+    "description": "This project aimed to improve waste segregation in the anesthesiology OR at St. Boniface Hospital and reduce unnecessary incineration of medical waste. Previously, a single pharmaceutical waste bin was used for mixed OR waste, which was then transported to Minnesota for high-carbon incineration. However, evidence suggests that most OR waste can instead be autoclaved or landfilled with lower environmental impact and cost. A new segregation system was therefore introduced with separate bins for sharps, pharmaceutical liquids, and general waste, supported by education sessions and ongoing staff coaching.",
+    "cobenefit": "Waste Management and Reduction | The Canadian Coalition for Green Healthcare: https://greenhealthcare.ca/waste-management-and-reduction/\nImproper disposal of medical waste costs health systems and the environment | CMAJ: https://www.cmaj.ca/content/195/14/e518#:~:text=In%20a%20recent%20audit%20of,and%20cutlery%20from%20the%20cafeteria",
+    "sustainabilityPrinciples": [
+      "Decarbonization / Depollution"
+    ],
+    "sustainabilityOpportunities": [
+      {
+        "name": "Waste management",
+        "explanation": "Improved organization of medical waste to ensure appropriate disposal pathways."
+      },
+      {
+        "name": "Energy",
+        "explanation": "Reduced energy consumption associated with high-temperature waste incineration, contributing to lower greenhouse gas emissions by diverting waste to lower-impact autoclave or landfill processes."
+      },
+      {
+        "name": "Travel and transportation",
+        "explanation": "Reduced long-distance transport of medical waste to Minnesota for incineration."
+      }
+    ],
+    "metrics": {
+      "environmental": [
+        "CO2e emissions from waste incineration before and after implementation of new waste segregation protocol.",
+        "Estimated CO2e emissions associated with waste disposal pathways (incineration, autoclave, landfill)."
+      ],
+      "activity": [
+        "Weight of waste sent for incineration before and after implementation of the new segregation protocol (over comparable time periods).",
+        "Cost savings associated with reduced long-distance transport.",
+        "Potential: Fuel consumption avoided through reduced transportation of waste.",
+        "Potential: Energy savings from reduced incineration processes."
+      ]
+    },
+    "domainsOfQuality": [
+      {
+        "name": "Efficiency",
+        "explanation": "Reduced unnecessary incineration of medical waste, lowering associated costs, energy use, labour, and transport requirements."
+      },
+      {
+        "name": "Safety",
+        "explanation": "Improved waste segregation practices in the operating room, reducing risks to healthcare workers associated with improper handling and disposal of medical waste."
+      }
+    ]
+  }
+]
