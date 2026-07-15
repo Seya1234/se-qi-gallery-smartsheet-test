@@ -318,8 +318,8 @@ function buildMailLink(project) {
 
 const RESOURCE_SECTION_LABEL_RE =
     /(Valuable Resources:|Resources identified as particularly valuable:)/i;
-const URL_RE = /https?:\/\/[^\s<>"']+/gi;
-const HAS_URL_RE = /https?:\/\/[^\s<>"']+/i;
+const URL_RE = /https?:\/\/[^\s<>"'\]\)]+/gi;
+const HAS_URL_RE = /https?:\/\/[^\s<>"'\]\)]+/i;
 
 function escapeHTML(value) {
     return String(value ?? "")
@@ -345,6 +345,10 @@ function normalizeToolkitText(value) {
         String(value ?? "")
             .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
             .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "")
+            .replace(/\[([^\]\n]+)]\((https?:\/\/[^)\s]+)\)/gi, (_match, label, href) => {
+                const cleanLabel = stripHTMLTags(label).trim();
+                return /^https?:\/\//i.test(cleanLabel) ? href : `${cleanLabel} ${href}`;
+            })
             .replace(
                 /<a\b[^>]*\bhref\s*=\s*(["'])(.*?)\1[^>]*>([\s\S]*?)<\/a>/gi,
                 (_match, _quote, href, label) => `${stripHTMLTags(label)} ${href}`
@@ -361,17 +365,17 @@ function normalizeToolkitText(value) {
 
 function cleanResourceTitle(value) {
     return String(value ?? "")
-        .replace(/^[\s;:,\-–—•*]+/, "")
+        .replace(/^[\s;:\-*]+/, "")
         .replace(/^\d+[\).]\s*/, "")
-        .replace(/[\s:：\-–—]+$/, "")
+        .replace(/[\s:;\-]+$/, "")
         .trim();
 }
 
 function normalizeURL(value) {
-    let url = String(value ?? "").trim();
-    while (/[.,;:!?]$/.test(url)) {
-        url = url.slice(0, -1);
-    }
+    const url = String(value ?? "")
+        .trim()
+        .replace(/^[\[(<]+/, "")
+        .replace(/[\])>`]+$/, "");
 
     try {
         const parsed = new URL(url);
@@ -379,6 +383,24 @@ function normalizeURL(value) {
     } catch (_error) {
         return "";
     }
+}
+
+function extractFirstURL(value) {
+    const match = String(value ?? "").match(HAS_URL_RE);
+    return match ? match[0] : "";
+}
+
+function removeURLFromText(value, url) {
+    if (!url) return value;
+    return String(value ?? "").replace(url, "");
+}
+
+function isURLOnlyLine(value) {
+    const text = cleanResourceTitle(value);
+    const url = extractFirstURL(text);
+    if (!url) return false;
+
+    return cleanResourceTitle(removeURLFromText(text, url).replace(/[\[\]()]/g, "")) === "";
 }
 
 function buildResourceLink(url, title) {
@@ -398,35 +420,51 @@ function splitPlainResourceItems(value) {
         .filter(Boolean);
 }
 
-function parseLinkedResources(value) {
-    const text = String(value ?? "");
-    const matches = [...text.matchAll(URL_RE)];
+function splitResourceLines(value) {
+    return String(value ?? "")
+        .split(/\s*;\s*|\n+/)
+        .map(item => cleanResourceTitle(item))
+        .filter(Boolean);
+}
 
-    if (matches.length === 0) {
-        return splitPlainResourceItems(text).map(item => ({
+function parseLinkedResources(value) {
+    const lines = splitResourceLines(value);
+
+    if (!lines.some(line => HAS_URL_RE.test(line))) {
+        return splitPlainResourceItems(value).map(item => ({
             title: item,
             url: ""
         }));
     }
 
     const resources = [];
-    let previousEnd = 0;
 
-    for (const match of matches) {
-        const rawURL = match[0];
-        const title = cleanResourceTitle(text.slice(previousEnd, match.index));
-        resources.push({
-            title: title || normalizeURL(rawURL) || rawURL,
-            url: rawURL
-        });
-        previousEnd = match.index + rawURL.length;
-    }
+    for (let index = 0; index < lines.length; index += 1) {
+        const line = lines[index];
+        const nextLine = lines[index + 1] || "";
+        const inlineURL = extractFirstURL(line);
 
-    const trailingText = cleanResourceTitle(text.slice(previousEnd));
-    if (trailingText) {
+        if (!inlineURL && nextLine && isURLOnlyLine(nextLine)) {
+            resources.push({
+                title: line,
+                url: extractFirstURL(nextLine)
+            });
+            index += 1;
+            continue;
+        }
+
+        if (!inlineURL) {
+            resources.push({
+                title: line,
+                url: ""
+            });
+            continue;
+        }
+
+        const title = cleanResourceTitle(removeURLFromText(line, inlineURL));
         resources.push({
-            title: trailingText,
-            url: ""
+            title: title || normalizeURL(inlineURL) || inlineURL,
+            url: inlineURL
         });
     }
 
@@ -455,6 +493,7 @@ function autoLinkText(value) {
             let html = "";
             let previousEnd = 0;
 
+            URL_RE.lastIndex = 0;
             for (const match of paragraph.matchAll(URL_RE)) {
                 html += escapeHTML(paragraph.slice(previousEnd, match.index));
                 html += buildResourceLink(match[0], "");
@@ -473,7 +512,25 @@ function formatToolkitResources(value) {
 
     const labelMatch = normalizedText.match(RESOURCE_SECTION_LABEL_RE);
     if (!labelMatch) {
-        return HAS_URL_RE.test(normalizedText) ? autoLinkText(normalizedText) : formatPlainParagraphs(normalizedText);
+        if (!HAS_URL_RE.test(normalizedText)) {
+            return formatPlainParagraphs(normalizedText);
+        }
+
+        const resources = parseLinkedResources(normalizedText);
+        const hasTitledResource = resources.some(resource => resource.url && resource.title !== normalizeURL(resource.url));
+        if (hasTitledResource) {
+            const resourceItemsHTML = resources
+                .map(resource => {
+                    const content = resource.url
+                        ? buildResourceLink(resource.url, resource.title)
+                        : escapeHTML(resource.title);
+                    return `<li>${content}</li>`;
+                })
+                .join("");
+            return `<ul class="toolkit-resource-list">${resourceItemsHTML}</ul>`;
+        }
+
+        return autoLinkText(normalizedText);
     }
 
     URL_RE.lastIndex = 0;
