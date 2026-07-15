@@ -75,7 +75,6 @@ const EXPECTED_COLUMN_TITLES = [
   "Potential for formal QI integration?",
   "QI integration comments",
   "Participant voice",
-  "Permission to display publicly",
   "Website record ID",
   "Website publication status",
   "Website publication date",
@@ -87,7 +86,6 @@ const COMMON_COLUMN_TITLES = {
   publicationStatus: "Website publication status",
   publicationDate: "Website publication date",
   photoFilename: "Website photo filename",
-  permission: "Permission to display publicly",
   toolkitUse: "Intended toolkit use",
   respondentName: "Respondent name",
   contactEmail: "Contact email",
@@ -510,19 +508,7 @@ export function generatePreviewRecords(sheet, options = {}) {
       READY_TO_PUBLISH_STATUS
   );
 
-  const approvedRows = [];
-  for (const row of readyRows) {
-    const recordId = rowIdentifier(row, columnLookup);
-    if (!isClearlyAffirmative(row, columnLookup.get(COMMON_COLUMN_TITLES.permission))) {
-      errors.push({
-        recordId,
-        issue: "Ready-to-publish row lacks affirmative public-display permission"
-      });
-      continue;
-    }
-
-    approvedRows.push(row);
-  }
+  const approvedRows = readyRows;
 
   const duplicateRecordIds = findDuplicateRecordIds(approvedRows, columnLookup);
   for (const recordId of duplicateRecordIds) {
