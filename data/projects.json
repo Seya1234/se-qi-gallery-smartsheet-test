@@ -213,5 +213,76 @@
         "explanation": "Faster and more direct access to laboratory results through digital systems, reducing delays associated with receiving, sorting, and processing faxed documents."
       }
     ]
+  },
+  {
+    "id": "SEQI-0016",
+    "type": "project",
+    "title": "Smple Project Title for testing",
+    "photo": "images/seqi-0016.jpg",
+    "photoAlt": "Smple Project Title for testing",
+    "province": "British Columbia",
+    "publishedOn": "15 July 2026",
+    "contactName": "Sample name",
+    "email": "bianca.grosu@vch.ca",
+    "organization": "Vancouver Coastal Health",
+    "department": "Spread Quality Improvement",
+    "stage": "Work in progress",
+    "healthcareSetting": "Long-term care, acute care",
+    "description": "SAMPLEThe C.A.R.E. Collaborative is a multi-site QI project implemented across seven long-term care homes in British Columbia and focused on reducing unnecessary and avoidable emergency department transfers from long-term care facilities.",
+    "cobenefit": "Strong starting point for teams new to planetary health. Supports early-stage project development. Valuable Resources: Care Pathways: Guidance on Appraising Sustainability Emergency Department Visit Module (2015) https://networks.sustainablehealthcare.org.uk/sites/default/files/resources/3._Sustainable_Care_Pathways_Guidance_-_Emergency_Department_Visit_Module_-_Oct_2015%283%29.pdf ; British Columbia Emergency Health Services  2023 Climate Change Accountability Report https://www.bcehs.ca/our-services-site/Documents/2023%20BCEHS%20CCAR%20-%20FINAL%20PDF_MC.pdf",
+    "sustainabilityPrinciples": [
+      "Stewardship/ Appropriateness"
+    ],
+    "sustainabilityOpportunities": [
+      {
+        "name": "Prevention",
+        "explanation": "Avoiding complications and patient deterioration through improved continuity of care."
+      },
+      {
+        "name": "Stewardship/ Appropriateness",
+        "explanation": "Avoiding unnecessary hospital-based care and minimizing delays in care delivery."
+      },
+      {
+        "name": "Consumables",
+        "explanation": "Reducing unnecessary resource consumption associated with avoidable acute care utilization."
+      },
+      {
+        "name": "Waste management",
+        "explanation": "Reducing unnecessary medical waste generation associated with avoidable acute care utilization."
+      },
+      {
+        "name": "Travel and transportation",
+        "explanation": "Reducing patient transfers and associated transportation-related emissions."
+      },
+      {
+        "name": "Climate resilience and adaptation",
+        "explanation": "Supporting patient resilience by enabling care within familiar environments and reducing exposure to system-related stressors."
+      }
+    ],
+    "metrics": {
+      "environmental": [
+        "Avoided carbon emissions per emergency department admission (based on the NHS ER visit model).",
+        "Avoided carbon emissions per trip from long-term care sites to emergency departments (calculated using BC ambulatory emissions and the most common route for each care home).",
+        "Carbon emissions per acute care bed day."
+      ],
+      "activity": [
+        "Number of avoided emergency department admissions.",
+        "Number of avoided trips from long-term care sites to emergency departments."
+      ]
+    },
+    "domainsOfQuality": [
+      {
+        "name": "Efficiency",
+        "explanation": "The reduction in unnecessary emergency department transfers decreases avoidable administrative burden, resource use, and pressure on acute care services."
+      },
+      {
+        "name": "Timeliness",
+        "explanation": "Residents receive more timely care within long-term care settings while reducing pressure and delays within emergency departments."
+      },
+      {
+        "name": "Patient-Centredness / Respect",
+        "explanation": "Supports improved dignity, comfort, and continuity of care by enabling residents to remain within familiar long-term care environments and reducing stressful care transitions."
+      }
+    ]
   }
 ]
