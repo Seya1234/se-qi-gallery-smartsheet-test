@@ -127,6 +127,36 @@
     ]
   },
   {
+    "id": "SEQI-0007",
+    "type": "initiative",
+    "title": "Integrating the SE-QI Toolkit in ONSQIN",
+    "photo": "images/project07.jpg",
+    "photoAlt": "Integrating the SE-QI Toolkit in ONSQIN",
+    "province": "Ontario",
+    "publishedOn": "14 July 2026",
+    "contactName": "Pierrette Price-Arsenault",
+    "email": "ONSQIN@ontariohealth.ca",
+    "organization": "Ontario Health",
+    "department": "Ontario Surgical Quality Improvement Network",
+    "stage": "Work in progress",
+    "healthcareSetting": "",
+    "description": "An early-stage initiative involving exploration of the SE-QI Toolkit as a potential future resource to be introduced and disseminated to clinicians through Ontario Health’s Closing the Quality Gap campaign. The Toolkit has the potential to support surgical quality improvement projects by incorporating a valuable sustainability lens into clinically focused initiatives.",
+    "sustainabilityPrinciples": [],
+    "sustainabilityOpportunities": [],
+    "metrics": {
+      "environmental": [],
+      "activity": []
+    },
+    "domainsOfQuality": [],
+    "cobenefit": "",
+    "initiativeStage": "Work in progress",
+    "toolkitApplication": "The Toolkit was recently featured at the Ontario Health's Closing the Quality Gap campaign meeting, where its capabilities, resources, and potential for formal integration into educational curricula were discussed.",
+    "toolkitAudienceUptake": "The intended audience is ONSQIN members across approximately 55 hospitals in Ontario. Uptake is currently limited to pilot exploration, with initial use focused on testing feasibility and gathering insights to support potential future scaling.",
+    "mostValuableElements": "Information on how sustainability outcomes can be incorporated into clinical projects.\nLinks to credible carbon calculators to aid data collection, measurement, and analysis.",
+    "qiIntegration": "No",
+    "qiIntegrationComments": ""
+  },
+  {
     "id": "SEQI-0011",
     "type": "project",
     "title": "Digitizing Lab Results in Nephrology Services",
