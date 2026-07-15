@@ -3,17 +3,18 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 
-const SMARTSHEET_API_BASE = "https://api.smartsheet.com/2.0";
+export const SMARTSHEET_API_BASE = "https://api.smartsheet.com/2.0";
 const PREVIEW_OUTPUT_PATH = "data/projects.preview.json";
-const DEFAULT_IMAGES_DIRECTORY = "images";
-const READY_TO_PUBLISH_STATUS = "Ready to publish";
-const PROJECT_TOOLKIT_USE = "For a specific project";
-const INITIATIVE_TOOLKIT_USE = "As a training or capacity building tool";
+export const DEFAULT_IMAGES_DIRECTORY = "images";
+export const READY_TO_PUBLISH_STATUS = "Ready to publish";
+export const PUBLISHED_STATUS = "Published";
+export const PROJECT_TOOLKIT_USE = "For a specific project";
+export const INITIATIVE_TOOLKIT_USE = "As a training or capacity building tool";
 const WEBSITE_LABEL_OVERRIDES = new Map([
   ["Stewardship / Appropriateness", "Stewardship/ Appropriateness"]
 ]);
 
-const EXPECTED_COLUMN_TITLES = [
+export const EXPECTED_COLUMN_TITLES = [
   "Respondent name",
   "Organization",
   "Department",
@@ -86,7 +87,7 @@ const EXPECTED_COLUMN_TITLES = [
   "Website photo filename"
 ];
 
-const COMMON_COLUMN_TITLES = {
+export const COMMON_COLUMN_TITLES = {
   recordId: "Website record ID",
   publicationStatus: "Website publication status",
   publicationDate: "Website publication date",
@@ -99,7 +100,7 @@ const COMMON_COLUMN_TITLES = {
   province: "Province/ Territory"
 };
 
-const PROJECT_COLUMN_TITLES = {
+export const PROJECT_COLUMN_TITLES = {
   title: "Project title",
   description: "Project description",
   stage: "Project stage",
@@ -110,7 +111,7 @@ const PROJECT_COLUMN_TITLES = {
   environmentalData: "Environmental data"
 };
 
-const INITIATIVE_COLUMN_TITLES = {
+export const INITIATIVE_COLUMN_TITLES = {
   title: "Initiative title",
   description: "Initiative description",
   stage: "Initiative Stage",
@@ -151,7 +152,7 @@ const DOMAIN_PAIRS = [
   ["Other", "Other - Comments"]
 ];
 
-class ValidationError extends Error {
+export class ValidationError extends Error {
   constructor(errors) {
     super("Preview generation validation failed.");
     this.name = "ValidationError";
@@ -159,7 +160,7 @@ class ValidationError extends Error {
   }
 }
 
-function requireEnv(name) {
+export function requireEnv(name) {
   const value = process.env[name];
 
   if (!value || value.trim() === "") {
@@ -169,16 +170,16 @@ function requireEnv(name) {
   return value.trim();
 }
 
-function trimText(value) {
+export function trimText(value) {
   if (value === null || value === undefined) return "";
   return String(value).trim();
 }
 
-function rowIdentifier(row, columnLookup) {
+export function rowIdentifier(row, columnLookup) {
   return getCellText(row, columnLookup.get(COMMON_COLUMN_TITLES.recordId)) || "<missing>";
 }
 
-function buildColumnLookup(columns) {
+export function buildColumnLookup(columns) {
   const lookup = new Map();
   const duplicateTitles = new Set();
 
@@ -204,16 +205,16 @@ function buildColumnLookup(columns) {
   return lookup;
 }
 
-function getCellByColumnId(row, columnId) {
+export function getCellByColumnId(row, columnId) {
   return (row.cells || []).find(cell => cell.columnId === columnId);
 }
 
-function getCell(row, column) {
+export function getCell(row, column) {
   if (!column) return undefined;
   return getCellByColumnId(row, column.id);
 }
 
-function getCellText(row, column) {
+export function getCellText(row, column) {
   const cell = getCell(row, column);
   if (!cell) return "";
 
@@ -224,7 +225,7 @@ function getCellText(row, column) {
   return "";
 }
 
-function getDateCellValue(row, column) {
+export function getDateCellValue(row, column) {
   const cell = getCell(row, column);
   if (!cell) return "";
 
@@ -325,7 +326,7 @@ function splitListField(value) {
   return [stripBulletPrefix(text)].filter(Boolean);
 }
 
-function formatDateForWebsite(value, fallbackDate = new Date()) {
+export function formatDateForWebsite(value, fallbackDate = new Date()) {
   const text = trimText(value);
   const hasPublicationDate = text !== "";
   const source = hasPublicationDate ? text : fallbackDate;
@@ -351,7 +352,7 @@ function formatDateForWebsite(value, fallbackDate = new Date()) {
   }).format(date);
 }
 
-function getRecordType(value) {
+export function getRecordType(value) {
   const toolkitUse = trimText(value);
 
   if (toolkitUse === PROJECT_TOOLKIT_USE) return "project";
@@ -376,20 +377,32 @@ function buildDetailPairs(row, columnLookup, pairs) {
     }));
 }
 
-function buildCommonRecord(row, columnLookup, recordType, title, fallbackDate) {
-  const filename = getCellText(row, columnLookup.get(COMMON_COLUMN_TITLES.photoFilename));
+function getFinalPhotoFilename(row, columnLookup, options = {}) {
+  const recordId = rowIdentifier(row, columnLookup);
+  return (
+    options.photoFilenameByRecordId?.get(recordId) ||
+    getCellText(row, columnLookup.get(COMMON_COLUMN_TITLES.photoFilename))
+  );
+}
+
+function buildCommonRecord(row, columnLookup, recordType, title, fallbackDate, options = {}) {
+  const recordId = getCellText(row, columnLookup.get(COMMON_COLUMN_TITLES.recordId));
+  const filename = getFinalPhotoFilename(row, columnLookup, options);
+  const publishedOn =
+    options.publishedOnByRecordId?.get(recordId) ||
+    formatDateForWebsite(
+      getDateCellValue(row, columnLookup.get(COMMON_COLUMN_TITLES.publicationDate)),
+      fallbackDate
+    );
 
   return {
-    id: getCellText(row, columnLookup.get(COMMON_COLUMN_TITLES.recordId)),
+    id: recordId,
     type: recordType,
     title,
     photo: `images/${filename}`,
     photoAlt: title,
     province: getCellText(row, columnLookup.get(COMMON_COLUMN_TITLES.province)),
-    publishedOn: formatDateForWebsite(
-      getDateCellValue(row, columnLookup.get(COMMON_COLUMN_TITLES.publicationDate)),
-      fallbackDate
-    ),
+    publishedOn,
     contactName: getCellText(row, columnLookup.get(COMMON_COLUMN_TITLES.respondentName)),
     email: getCellText(row, columnLookup.get(COMMON_COLUMN_TITLES.contactEmail)),
     organization: getCellText(row, columnLookup.get(COMMON_COLUMN_TITLES.organization)),
@@ -397,9 +410,9 @@ function buildCommonRecord(row, columnLookup, recordType, title, fallbackDate) {
   };
 }
 
-function mapProjectRow(row, columnLookup, fallbackDate) {
+function mapProjectRow(row, columnLookup, fallbackDate, options = {}) {
   const title = getCellText(row, columnLookup.get(PROJECT_COLUMN_TITLES.title));
-  const common = buildCommonRecord(row, columnLookup, "project", title, fallbackDate);
+  const common = buildCommonRecord(row, columnLookup, "project", title, fallbackDate, options);
 
   return {
     ...common,
@@ -422,9 +435,9 @@ function mapProjectRow(row, columnLookup, fallbackDate) {
   };
 }
 
-function mapInitiativeRow(row, columnLookup, fallbackDate) {
+function mapInitiativeRow(row, columnLookup, fallbackDate, options = {}) {
   const title = getCellText(row, columnLookup.get(INITIATIVE_COLUMN_TITLES.title));
-  const common = buildCommonRecord(row, columnLookup, "initiative", title, fallbackDate);
+  const common = buildCommonRecord(row, columnLookup, "initiative", title, fallbackDate, options);
   const stage = getCellText(row, columnLookup.get(INITIATIVE_COLUMN_TITLES.stage));
 
   return {
@@ -458,11 +471,10 @@ function mapInitiativeRow(row, columnLookup, fallbackDate) {
   };
 }
 
-function validateCommonRequiredFields(row, columnLookup, errors) {
+function validateCommonRequiredFields(row, columnLookup, errors, options = {}) {
   const recordId = rowIdentifier(row, columnLookup);
   const missingChecks = [
     [COMMON_COLUMN_TITLES.recordId, "Website record ID"],
-    [COMMON_COLUMN_TITLES.photoFilename, "Website photo filename"],
     [COMMON_COLUMN_TITLES.toolkitUse, "Intended toolkit use"],
     [COMMON_COLUMN_TITLES.organization, "Organization"]
   ];
@@ -471,6 +483,10 @@ function validateCommonRequiredFields(row, columnLookup, errors) {
     if (!getCellText(row, columnLookup.get(columnTitle))) {
       pushMissingError(errors, recordId, fieldName);
     }
+  }
+
+  if (!getFinalPhotoFilename(row, columnLookup, options)) {
+    pushMissingError(errors, recordId, "Website photo filename");
   }
 }
 
@@ -499,15 +515,15 @@ function validateTypeRequiredFields(row, columnLookup, recordType, errors) {
   }
 }
 
-function buildCaseSensitiveImageFilenameSet(imagesDirectory = DEFAULT_IMAGES_DIRECTORY) {
+export function buildCaseSensitiveImageFilenameSet(imagesDirectory = DEFAULT_IMAGES_DIRECTORY) {
   return new Set(readdirSync(imagesDirectory, { withFileTypes: true })
     .filter(entry => entry.isFile())
     .map(entry => entry.name));
 }
 
-function validateImageFile(row, columnLookup, availableImageFilenames, errors) {
+function validateImageFile(row, columnLookup, availableImageFilenames, errors, options = {}) {
   const recordId = rowIdentifier(row, columnLookup);
-  const filename = getCellText(row, columnLookup.get(COMMON_COLUMN_TITLES.photoFilename));
+  const filename = getFinalPhotoFilename(row, columnLookup, options);
   if (!filename) return;
 
   const imagePath = `${DEFAULT_IMAGES_DIRECTORY}/${filename}`;
@@ -519,7 +535,7 @@ function validateImageFile(row, columnLookup, availableImageFilenames, errors) {
   }
 }
 
-function findDuplicateRecordIds(rows, columnLookup) {
+export function findDuplicateRecordIds(rows, columnLookup) {
   const seen = new Set();
   const duplicates = new Set();
 
@@ -537,6 +553,8 @@ export function generatePreviewRecords(sheet, options = {}) {
   const rows = Array.isArray(sheet.rows) ? sheet.rows : [];
   const columnLookup = buildColumnLookup(sheet.columns || []);
   const fallbackDate = options.fallbackDate || new Date();
+  const eligiblePublicationStatuses =
+    options.eligiblePublicationStatuses || [READY_TO_PUBLISH_STATUS];
   const availableImageFilenames =
     options.availableImageFilenames || buildCaseSensitiveImageFilenameSet(options.imagesDirectory);
   const errors = [];
@@ -546,8 +564,17 @@ export function generatePreviewRecords(sheet, options = {}) {
       getCellText(row, columnLookup.get(COMMON_COLUMN_TITLES.publicationStatus)) ===
       READY_TO_PUBLISH_STATUS
   );
+  const publishedRows = rows.filter(
+    row =>
+      getCellText(row, columnLookup.get(COMMON_COLUMN_TITLES.publicationStatus)) ===
+      PUBLISHED_STATUS
+  );
 
-  const approvedRows = readyRows;
+  const approvedRows = rows.filter(row =>
+    eligiblePublicationStatuses.includes(
+      getCellText(row, columnLookup.get(COMMON_COLUMN_TITLES.publicationStatus))
+    )
+  );
 
   const duplicateRecordIds = findDuplicateRecordIds(approvedRows, columnLookup);
   for (const recordId of duplicateRecordIds) {
@@ -563,8 +590,8 @@ export function generatePreviewRecords(sheet, options = {}) {
     const toolkitUse = getCellText(row, columnLookup.get(COMMON_COLUMN_TITLES.toolkitUse));
     const recordType = getRecordType(toolkitUse);
 
-    validateCommonRequiredFields(row, columnLookup, errors);
-    validateImageFile(row, columnLookup, availableImageFilenames, errors);
+    validateCommonRequiredFields(row, columnLookup, errors, options);
+    validateImageFile(row, columnLookup, availableImageFilenames, errors, options);
 
     if (!recordType) {
       errors.push({
@@ -579,8 +606,8 @@ export function generatePreviewRecords(sheet, options = {}) {
     try {
       records.push(
         recordType === "project"
-          ? mapProjectRow(row, columnLookup, fallbackDate)
-          : mapInitiativeRow(row, columnLookup, fallbackDate)
+          ? mapProjectRow(row, columnLookup, fallbackDate, options)
+          : mapInitiativeRow(row, columnLookup, fallbackDate, options)
       );
     } catch (error) {
       errors.push({
@@ -606,6 +633,8 @@ export function generatePreviewRecords(sheet, options = {}) {
     summary: {
       totalRowsRead: rows.length,
       readyToPublishRowCount: readyRows.length,
+      publishedRowCount: publishedRows.length,
+      eligibleRowCount: approvedRows.length,
       publicPermissionApprovedRowCount: approvedRows.length,
       generatedProjectCount: records.filter(record => record.type === "project").length,
       generatedInitiativeCount: records.filter(record => record.type === "initiative").length,
