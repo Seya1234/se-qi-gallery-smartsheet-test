@@ -1,0 +1,81 @@
+name: Publish to Test Website
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Type PUBLISH TEST to publish approved Smartsheet content to the TEST website"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-to-test-website
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish approved content
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Prepare website content
+        env:
+          INPUT_CONFIRMATION: ${{ inputs.confirmation }}
+          SMARTSHEET_ACCESS_TOKEN: ${{ secrets.SMARTSHEET_ACCESS_TOKEN }}
+          SMARTSHEET_SHEET_ID: ${{ secrets.SMARTSHEET_SHEET_ID }}
+          PUBLISH_METADATA_PATH: ${{ runner.temp }}/seqi-publish-metadata.json
+        run: node scripts/publish-to-test-website.mjs prepare
+
+      - name: Configure Git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Stage approved website files
+        id: stage
+        run: |
+          git add data/projects.json images
+          git diff --check
+          git diff --cached --check
+
+          staged_files="$(git diff --cached --name-only)"
+          if [ -z "$staged_files" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No repository changes to commit."
+            exit 0
+          fi
+
+          unexpected_files="$(printf '%s\n' "$staged_files" | grep -Ev '^(data/projects\.json|images/[^/]+)$' || true)"
+          if [ -n "$unexpected_files" ]; then
+            echo "Unexpected staged file(s):"
+            printf '%s\n' "$unexpected_files"
+            exit 1
+          fi
+
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Commit approved website files
+        if: steps.stage.outputs.changed == 'true'
+        run: git commit -m "Publish approved Smartsheet content to test website"
+
+      - name: Push to main
+        if: steps.stage.outputs.changed == 'true'
+        run: git push origin HEAD:main
+
+      - name: Update Smartsheet publication fields
+        env:
+          SMARTSHEET_ACCESS_TOKEN: ${{ secrets.SMARTSHEET_ACCESS_TOKEN }}
+          SMARTSHEET_SHEET_ID: ${{ secrets.SMARTSHEET_SHEET_ID }}
+          PUBLISH_METADATA_PATH: ${{ runner.temp }}/seqi-publish-metadata.json
+        run: node scripts/publish-to-test-website.mjs writeback
