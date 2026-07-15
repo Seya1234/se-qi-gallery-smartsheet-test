@@ -16,7 +16,7 @@ body {
 
 h1, h2, h3, h4, h5, h6,
 .gallery-heading, .sidebar-title, .filter-group-heading,
-.tile-title, .modal-title, .modal-section-heading,
+.tile-title, .modal-section-heading,
 .detail-item-name, .metrics-col-heading, .empty-state h3 {
   font-family: 'Barlow', sans-serif;
   font-weight: 700;
@@ -365,19 +365,6 @@ ul { list-style: none; padding: 0; }
     margin-bottom: 22px;
 }
 
-.section-eyebrow {
-    display: inline-block;
-    font-size: .72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .1em;
-    color: var(--olive);
-    background: rgba(123,155,45,.12);
-    border-radius: var(--radius-pill);
-    padding: 4px 12px;
-    margin-bottom: 10px;
-}
-
 .initiative-section-title {
     font-family: 'Barlow', sans-serif;
     font-weight: 800;
@@ -388,11 +375,6 @@ ul { list-style: none; padding: 0; }
     margin-bottom: 8px;
 }
 
-.initiative-section-desc {
-    font-size: .9rem;
-    color: var(--gray-600);
-    line-height: 1.7;
-}
 /* ---- Project Grid ---- */
 .project-grid,
 .initiative-grid {
@@ -514,27 +496,6 @@ ul { list-style: none; padding: 0; }
   margin-bottom: 8px;
 }
 
-/* Principle badges on tiles */
-.tile-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-.tile-badge {
-  display: inline-block;
-  font-size: .67rem;
-  font-weight: 700;
-  padding: 2px 9px;
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
-  letter-spacing: .02em;
-  background: var(--gray-100);
-  color: var(--gray-600);
-}
-.tile-badge[data-principle="Prevention"]                    { background: #edf4d0; color: #4a6318; }
-.tile-badge[data-principle="Stewardship / Appropriateness"] { background: var(--teal-100); color: var(--teal-800); }
-.tile-badge[data-principle="Decarbonization / Depollution"] { background: var(--green-100); color: var(--green-700); }
-
 /* ---- Empty state ---- */
 .empty-state {
   grid-column: 1 / -1;
@@ -561,52 +522,6 @@ ul { list-style: none; padding: 0; }
   transition: background .2s;
 }
 .btn-reset:hover { background: var(--olive); }
-
-/* ---- Submit CTA (inside main-area, below tiles) ---- */
-.submit-cta {
-  margin-top: 32px;
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-left: 4px solid var(--olive);
-  border-radius: var(--radius-md);
-  padding: 20px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
-  box-shadow: var(--shadow-sm);
-}
-.submit-cta-text {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.submit-cta-text strong {
-  font-family: 'Barlow', sans-serif;
-  font-size: .97rem;
-  font-weight: 700;
-  color: var(--navy);
-}
-.submit-cta-text span {
-  font-size: .84rem;
-  color: var(--gray-500);
-}
-.btn-submit {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 11px 22px;
-  background: var(--navy);
-  color: var(--white);
-  border-radius: var(--radius-pill);
-  font-family: 'Barlow', sans-serif;
-  font-weight: 700;
-  font-size: .88rem;
-  white-space: nowrap;
-  transition: background .2s;
-}
-.btn-submit:hover { background: var(--olive); }
 
 /* =========================================
    MODAL
@@ -712,54 +627,6 @@ ul { list-style: none; padding: 0; }
 .modal-photo--placeholder .placeholder-graphic span { font-size: .85rem; font-weight: 600; }
 
 .modal-content-body { padding: 28px 36px 40px; }
-
-.modal-title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--navy);
-  letter-spacing: -.025em;
-  line-height: 1.25;
-  margin-bottom: 18px;
-}
-.modal-type-label {
-    display: inline-flex;
-    align-items: center;
-    width: fit-content;
-    margin-bottom: 10px;
-    padding: 4px 11px;
-    border-radius: var(--radius-pill);
-    background: rgba(123,155,45,.12);
-    color: var(--olive-dark);
-    font-family: 'Barlow', sans-serif;
-    font-size: .7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .07em;
-}
-
-.modal-content-body--initiative .modal-title {
-    margin-bottom: 18px;
-}
-
-.modal-meta-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  background: var(--gray-50);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  margin-bottom: 28px;
-}
-.modal-meta-item { display: flex; flex-direction: column; gap: 2px; }
-.meta-label {
-  font-size: .68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  color: var(--navy);
-}
-.meta-value { font-size: .88rem; color: var(--gray-700); font-weight: 500; }
 
 .modal-section { margin-bottom: 28px; }
 .modal-section:last-child { margin-bottom: 0; }
@@ -868,19 +735,6 @@ body.modal-active { overflow: hidden; }
   flex-wrap: wrap;
 }
 
-.pdf-section-eyebrow {
-  display: inline-block;
-  font-size: .72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--olive);
-  background: rgba(123,155,45,.12);
-  border-radius: var(--radius-pill);
-  padding: 4px 12px;
-  margin-bottom: 10px;
-}
-
 .pdf-section-title {
   font-family: 'Barlow', sans-serif;
   font-weight: 800;
@@ -923,37 +777,6 @@ body.modal-active { overflow: hidden; }
     box-shadow: 0 12px 56px rgba(24,47,81,.18), 0 2px 8px rgba(24,47,81,.08);
     border: 1px solid rgba(24,47,81,.07);
     
-}
-
-/* Canvas-based PDF container (PDF.js) */
-.pdf-canvas-container {
-  width: 100%;
-  background: var(--white);
-  display: block;
-}
-
-.pdf-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  padding: 80px 24px;
-  font-size: .92rem;
-  color: var(--gray-500);
-}
-
-.pdf-spinner {
-  width: 28px;
-  height: 28px;
-  border: 3px solid var(--gray-200);
-  border-top-color: var(--navy);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-  flex-shrink: 0;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 .btn-download-pdf {
@@ -1073,13 +896,10 @@ body.modal-active { overflow: hidden; }
     }
 
   .modal-content-body { padding: 20px 18px 32px; }
-  .modal-meta-row { grid-template-columns: 1fr; }
   .metrics-grid  { grid-template-columns: 1fr; }
-  .modal-title   { font-size: 1.2rem; }
   .modal-photo   { margin-top: -48px; }
   .modal-photo--placeholder { margin-top: -48px; }
 
-  .submit-cta { flex-direction: column; align-items: flex-start; }
     .info-panel {
         padding: 18px;
     }
@@ -1092,17 +912,6 @@ body.modal-active { overflow: hidden; }
     .info-panel-title-wrap {
         align-items: flex-start;
     }
-
-    .info-panel-main-icon {
-        width: 44px;
-        height: 44px;
-        min-width: 44px;
-    }
-
-        .info-panel-main-icon svg {
-            width: 24px;
-            height: 24px;
-        }
 
     .info-panel-title {
         font-size: 1.22rem;
@@ -1130,24 +939,8 @@ body.modal-active { overflow: hidden; }
         }
 }
 
-/* ---- PDF — hide iframe on mobile, show download fallback ---- */
+/* ---- PDF mobile layout ---- */
 @media (max-width: 640px) {
-  .pdf-viewer { display: none; }
-  .pdf-mobile-fallback {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    padding: 48px 24px;
-    text-align: center;
-  }
-  .pdf-mobile-fallback p {
-    font-size: .9rem;
-    color: var(--gray-600);
-    max-width: 280px;
-    line-height: 1.6;
-  }
   .pdf-section-header { flex-direction: column; }
   .btn-download-pdf { width: 100%; justify-content: center; }
 }
@@ -1272,28 +1065,6 @@ body.modal-active { overflow: hidden; }
     min-width: 0;
 }
 
-.info-panel-main-icon {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-    border-radius: var(--radius-sm);
-    background: rgba(123, 155, 45, .13);
-    color: #5D6E1E;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-    .info-panel-main-icon svg {
-        width: 27px;
-        height: 27px;
-        stroke: currentColor;
-        stroke-width: 2;
-        fill: none;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-    }
-
 .info-panel-title {
     font-family: 'Barlow', sans-serif;
     font-size: 1.45rem;
@@ -1397,45 +1168,7 @@ body.modal-active { overflow: hidden; }
         background: linear-gradient(to bottom, rgba(0,0,0,.0) 50%, rgba(15,30,54,.28) 100%);
         pointer-events: none;
     }
-/* Stage badge floating over the image (top-right) */
-.tile-stage-overlay {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 2;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 4px 10px;
-    border-radius: var(--radius-pill);
-    font-family: 'Barlow', sans-serif;
-    font-size: .67rem;
-    font-weight: 700;
-    letter-spacing: .04em;
-    white-space: nowrap;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    line-height: 1;
-}
-
-    .tile-stage-overlay.stage-progress {
-        background: rgba(255,241,232,.92);
-        color: #803906;
-        border: 1px solid rgba(244,91,43,.35);
-    }
-
-    .tile-stage-overlay.stage-complete {
-        background: rgba(238,244,223,.92);
-        color: #5D6E1E;
-        border: 1px solid rgba(123,155,45,.35);
-    }
-
-    .tile-stage-overlay.stage-not-started {
-        background: rgba(243,245,246,.92);
-        color: #455F76;
-        border: 1px solid rgba(69,95,118,.25);
-    }
-/* Tile footer: show title + meta row */
+/* Tile footer */
 .tile-footer {
     padding: 14px 16px 15px;
     display: flex;
@@ -1451,82 +1184,6 @@ body.modal-active { overflow: hidden; }
     letter-spacing: -.01em;
     margin-bottom: 0;
 }
-/* Org + province row below the title */
-.tile-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.tile-meta-org {
-    font-size: .76rem;
-    font-weight: 600;
-    color: var(--gray-600);
-    line-height: 1.3;
-    display: flex;
-    align-items: flex-start;
-    gap: 5px;
-}
-
-    .tile-meta-org svg {
-        flex-shrink: 0;
-        margin-top: 1px;
-        color: var(--teal-600);
-        width: 12px;
-        height: 12px;
-    }
-
-.tile-meta-province {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: .68rem;
-    font-weight: 700;
-    color: var(--gray-500);
-    text-transform: uppercase;
-    letter-spacing: .06em;
-}
-
-    .tile-meta-province svg {
-        color: var(--olive);
-        width: 10px;
-        height: 10px;
-        flex-shrink: 0;
-    }
-/* Principle badges: slightly more polished */
-.tile-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 1px;
-}
-
-.tile-badge {
-    font-size: .64rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: var(--radius-pill);
-    letter-spacing: .025em;
-    border: 1px solid transparent;
-}
-
-    .tile-badge[data-principle="Prevention"] {
-        background: #edf4d0;
-        color: #4a6318;
-        border-color: rgba(74,99,24,.18);
-    }
-
-    .tile-badge[data-principle="Stewardship / Appropriateness"] {
-        background: var(--teal-100);
-        color: var(--teal-800);
-        border-color: rgba(31,144,128,.18);
-    }
-
-    .tile-badge[data-principle="Decarbonization / Depollution"] {
-        background: var(--green-100);
-        color: var(--green-700);
-        border-color: rgba(46,125,78,.18);
-    }
 /* =========================================
  INFO PANEL — enhanced version
  ========================================= */
@@ -1555,19 +1212,6 @@ body.modal-active { overflow: hidden; }
     padding: 20px 24px 18px;
     border-bottom: 1px solid rgba(24,47,81,.08);
     margin-bottom: 0;
-}
-
-.info-panel-main-icon {
-    width: 46px;
-    height: 46px;
-    min-width: 46px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, rgba(37,166,150,.18) 0%, rgba(123,155,45,.18) 100%);
-    color: var(--teal-700);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(37,166,150,.15);
 }
 
 .info-panel-title {
@@ -1706,9 +1350,6 @@ body.modal-active { overflow: hidden; }
         font-size: 1.18rem;
     }
 
-    .tile-meta-org {
-        font-size: .72rem;
-    }
 }
 /* ---- Replace emoji bullet icons with professional SVG icons ---- */
 
@@ -1919,6 +1560,20 @@ body.modal-active { overflow: hidden; }
         color: var(--teal-800);
     }
 
+    .cobenefit-text p {
+        margin: 0 0 12px;
+        overflow-wrap: anywhere;
+    }
+
+        .cobenefit-text p:last-child {
+            margin-bottom: 0;
+        }
+
+    .cobenefit-text .toolkit-resource-heading {
+        margin-top: 14px;
+        margin-bottom: 8px;
+    }
+
     .cobenefit-text ul {
         margin-top: 10px;
         display: flex;
@@ -1934,6 +1589,7 @@ body.modal-active { overflow: hidden; }
             gap: 8px;
             font-size: .85rem;
             line-height: 1.6;
+            overflow-wrap: anywhere;
         }
 
             .cobenefit-text ul li::before {
@@ -1955,6 +1611,8 @@ body.modal-active { overflow: hidden; }
         text-underline-offset: 2px;
         text-decoration-color: rgba(31,144,128,.35);
         transition: color .15s, text-decoration-color .15s;
+        overflow-wrap: anywhere;
+        word-break: break-word;
     }
 
         .cobenefit-text a:hover {
