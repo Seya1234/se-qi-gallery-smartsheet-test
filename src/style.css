@@ -172,6 +172,46 @@ ul { list-style: none; padding: 0; }
   font-weight: 400;
 }
 
+.hero-cta-text {
+  margin-top: 28px;
+  max-width: 680px;
+  color: rgba(255,255,255,.86);
+  font-size: 1rem;
+  line-height: 1.65;
+  font-weight: 500;
+}
+
+.hero-cta-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 18px;
+  padding: 13px 28px;
+  border-radius: var(--radius-pill);
+  background: var(--white);
+  color: var(--navy);
+  font-family: 'Barlow', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: 0 10px 26px rgba(0,0,0,.18);
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease;
+}
+
+.hero-cta-button:hover,
+.hero-cta-button:focus-visible {
+  background: var(--olive);
+  color: var(--white);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 32px rgba(0,0,0,.24);
+}
+
+.hero-cta-button:focus-visible {
+  outline: 3px solid rgba(255,255,255,.7);
+  outline-offset: 3px;
+}
+
 /* =========================================
    LAYOUT SHELL (gallery section)
    ========================================= */
@@ -223,6 +263,12 @@ ul { list-style: none; padding: 0; }
 }
 .sidebar-title svg { color: var(--navy); }
 
+.sidebar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .btn-clear {
   display: none;
   align-items: center;
@@ -238,6 +284,23 @@ ul { list-style: none; padding: 0; }
 }
 .btn-clear.btn-clear--visible { display: flex; }
 .btn-clear:hover { border-color: var(--olive); color: var(--olive-dark); }
+
+.btn-sidebar-close {
+  display: none;
+  align-items: center;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-pill);
+  background: var(--white);
+  color: var(--navy);
+  padding: 5px 11px;
+  font-size: .76rem;
+  font-weight: 700;
+}
+
+.btn-sidebar-close:hover,
+.btn-sidebar-close:focus-visible {
+  border-color: var(--navy);
+}
 
 /* Filter groups */
 .filter-group { margin-bottom: 22px; }
@@ -699,6 +762,7 @@ ul { list-style: none; padding: 0; }
 .metrics-list--act li::before { content: '📊'; position: absolute; left: -2px; font-size: .7rem; }
 
 body.modal-active { overflow: hidden; }
+body.sidebar-active { overflow: hidden; }
 
 /* =========================================
    SIDEBAR OVERLAY (mobile)
@@ -814,6 +878,39 @@ body.modal-active { overflow: hidden; }
 
 /* ---- Mobile layout breakpoint ---- */
 @media (max-width: 900px) {
+  :root { --nav-h: 88px; }
+
+  .nav-inner {
+    padding: 8px 16px;
+    gap: 12px;
+  }
+
+  .nav-brand {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 10px;
+    width: min(230px, calc(100vw - 190px));
+    flex: 0 1 auto;
+    align-items: center;
+  }
+
+  .nav-logo {
+    width: 100%;
+    height: 22px;
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  .btn-sidebar-toggle {
+    flex-shrink: 0;
+    gap: 5px;
+    padding: 7px 8px;
+    background: var(--navy);
+    border-color: var(--navy);
+    color: var(--white);
+    font-size: .76rem;
+  }
+
   .layout {
     grid-template-columns: 1fr;
     padding: 20px 16px 32px;
@@ -836,8 +933,11 @@ body.modal-active { overflow: hidden; }
     border-top: none;
     border-bottom: none;
     overflow-y: auto;
+    overscroll-behavior: contain;
     box-shadow: none;
   }
+
+  .btn-sidebar-close { display: inline-flex; }
   .sidebar.sidebar--open {
     transform: translateX(0);
     box-shadow: var(--shadow-lg);
@@ -869,12 +969,24 @@ body.modal-active { overflow: hidden; }
   .hero-inner { padding: 0 24px; }
   .hero-title  { font-size: 1.8rem; }
   .hero-subtitle { font-size: .95rem; }
+  .hero-cta-text {
+    margin-top: 22px;
+    font-size: .95rem;
+  }
 }
 
 /* ---- Small phone ---- */
 @media (max-width: 480px) {
   .nav-inner { padding: 0 16px; }
-  .nav-logo { height: 30px; }
+  .btn-sidebar-toggle svg { display: none; }
+  .nav-logo {
+    width: 100%;
+    height: 20px;
+  }
+  .nav-brand {
+    width: min(220px, calc(100vw - 160px));
+    gap: 6px 8px;
+  }
 
   .hero-header {
     padding: 28px 0 44px;
@@ -883,6 +995,11 @@ body.modal-active { overflow: hidden; }
   .hero-inner { padding: 0 18px; }
   .hero-title  { font-size: 1.5rem; }
   .hero-subtitle { font-size: .9rem; }
+  .hero-cta-text { font-size: .9rem; }
+  .hero-cta-button {
+    width: 100%;
+    padding: 13px 18px;
+  }
 
     .project-grid,
     .initiative-grid {
